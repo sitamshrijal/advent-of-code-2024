@@ -37,5 +37,5 @@ fun List<Int>.isSafe(): Boolean {
 }
 
 fun List<Int>.isSafeWithDampener(): Boolean = indices.any { toRemove ->
-    filterIndexed() { index, _ -> index != toRemove }.isSafe()
+    filterIndexed { index, _ -> index != toRemove }.isSafe()
 }
