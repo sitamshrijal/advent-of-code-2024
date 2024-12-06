@@ -2,31 +2,37 @@ fun main() {
     fun part1(input: List<String>): Int {
         val (rules, pages) = Instruction.parse(input)
 
-        val correctOrderings = mutableListOf<List<Int>>()
-
-        for (page in pages) {
-            var correctOrdering = true
-            val cartesianPairs = page.cartesianPairs()
-            for (pair in cartesianPairs) {
-                for (rule in rules) {
-                    if (pair.first == rule.second && pair.second == rule.first) {
-                        correctOrdering = false
-                        break
-                    }
-                }
-                if (!correctOrdering) {
-                    break
-                }
-            }
-            if (correctOrdering) {
-                correctOrderings += page
+        val comparator = Comparator<Int> { a, b ->
+            when {
+                a to b in rules -> -1
+                b to a in rules -> 1
+                else -> 0
             }
         }
-        return correctOrderings.sumOf { numbers -> numbers[numbers.size / 2] }
+
+        // Sort each page according to the rules
+        val sortedPages = pages.map { it to it.sortedWith(comparator) }
+
+        return sortedPages.filter { (page, sorted) -> page == sorted }
+            .sumOf { (page) -> page[page.size / 2] }
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val (rules, pages) = Instruction.parse(input)
+
+        val comparator = Comparator<Int> { a, b ->
+            when {
+                a to b in rules -> -1
+                b to a in rules -> 1
+                else -> 0
+            }
+        }
+
+        // Sort each page according to the rules
+        val sortedPages = pages.map { it to it.sortedWith(comparator) }
+
+        return sortedPages.filterNot { (page, sorted) -> page == sorted }
+            .sumOf { (_, sorted) -> sorted[sorted.size / 2] }
     }
 
     val input = readInput("input5")
@@ -57,14 +63,4 @@ data class Instruction(val rules: List<Pair<Int, Int>>, val pages: List<List<Int
             return Instruction(rules, pages)
         }
     }
-}
-
-fun List<Int>.cartesianPairs(): List<Pair<Int, Int>> {
-    val pairs = mutableListOf<Pair<Int, Int>>()
-    for (i in indices) {
-        for (j in i + 1..lastIndex) {
-            pairs += this[i] to this[j]
-        }
-    }
-    return pairs
 }
