@@ -31,7 +31,39 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val wordSearch = mutableListOf<Position>()
+
+        input.forEachIndexed { i, row ->
+            row.forEachIndexed { j, c ->
+                wordSearch += Position(c, j, i)
+            }
+        }
+
+        val aPositions = wordSearch.filter { it.char == 'A' }
+
+        val diagonals = listOf(
+            WordSearchDirection.DIAGONAL_1,
+            WordSearchDirection.DIAGONAL_2,
+            WordSearchDirection.DIAGONAL_3,
+            WordSearchDirection.DIAGONAL_4
+        )
+
+        var count = 0
+        aPositions.forEach { aPosition ->
+            var diagonalChars = ""
+            for (direction in diagonals) {
+                val (dx, dy) = direction.dx to direction.dy
+                val (x, y) = aPosition.x + dx to aPosition.y + dy
+                val nextChar = wordSearch.find { it.x == x && it.y == y }
+                if (nextChar != null) {
+                    diagonalChars += nextChar.char
+                }
+            }
+            if (diagonalChars in setOf("MMSS", "MSMS", "SSMM", "SMSM")) {
+                count += 1
+            }
+        }
+        return count
     }
 
     val input = readInput("input4")
